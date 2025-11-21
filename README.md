@@ -8,151 +8,226 @@
 *  https://github.khoury.northeastern.edu/wangchong/CS6650-repo/tree/main/assignment10 
 ---
 
+
 ## 1. Executive Summary
-This report analyzes the performance and consistency trade-offs of a distributed Key-Value store ($N=5$) under four distinct configurations: **Strong Consistency ($W=5, R=1$)**, **Quorum ($W=3, R=3$)**, **High Availability ($W=1, R=5$)**, and **Leaderless ($W=N, R=1$)**.
+This analysis characterizes the performance boundaries of **Leader-Follower** and **Leaderless** database architectures under varying simulated network constraints.
 
-To simulate Wide Area Network (WAN) characteristics, the following delays were enforced:
-* **Leader Write:** 200ms delay per follower.
-* **Follower Write:** 100ms processing delay.
-* **Follower Read:** 50ms processing delay.
+Our load testing reveals a distinct hierarchy in performance efficiency driven by the specific consistency requirements of each configuration. **The `W=5, R=1` Leader-Follower configuration emerged as the most performant architecture** for this test harness, delivering **3x faster read latencies** (~34ms) compared to the Quorum `W=3, R=3` setup (~90ms), without incurring a write penalty.
 
-**Key Findings:**
-* **Strategy 2 ($W=1$)** achieved the fastest writes (**41.46ms**) by bypassing the synchronous replication delay.
-* **Strategy 1 ($W=5$)** maintained extremely stable but high write latency (**~339ms**) while offering fast reads (**~34ms**).
-* **Leaderless** architecture provided the fastest raw reads (**0.76ms**) but exhibited operational instability (73 failures recorded).
+While the **Leaderless** architecture demonstrated sub-millisecond read capabilities ($\approx$ 0.76ms), its application is limited by the trade-off of eventual consistency and high write-coordination costs.
 
 ---
 
-## 2. Strategy 1: Strong Consistency ($W=5, R=1$)
-**Configuration:** The Leader waits for *all* 5 nodes to acknowledge a write. Reads are served locally by the Leader (or synced replica).
-
-### Performance Data
-* **Write Latency (Mean):** Consistently **337ms - 339ms**.
-* **Read Latency (Mean):** Consistently **33ms - 35ms**.
-* **Stability:** The variance is low. P95 and Mean are very close (e.g., 339ms Mean vs 350ms P95), indicating deterministic behavior.
-
-### Latency Graphs
-**1% Write / 99% Read:**
-Graph of W5R1 1% Write
-<img width="2970" height="1745" alt="interval_distribution_w5r1_1w" src="https://github.com/user-attachments/assets/5a36a9b3-4aa1-4bbb-aeae-7725a8dc45ce" />
-
-
-**10% Write / 90% Read:**
-Graph of W5R1 10% Write
-<img width="2970" height="1745" alt="interval_distribution_w5r1_10w" src="https://github.com/user-attachments/assets/4b29569f-1427-44cc-8cf4-3633f9992eb1" />
-
-
-**50% Write / 50% Read:**
-Graph of W5R1 50% Write
-<img width="2970" height="1745" alt="interval_distribution_w5r1_50w" src="https://github.com/user-attachments/assets/919cf7a1-8a60-4d83-95ba-4474e3248720" />
-
-
-**90% Write / 10% Read:**
-Graph of W5R1 90% Write
-<img width="2965" height="1745" alt="interval_distribution_w5r1_90w" src="https://github.com/user-attachments/assets/ddf9349a-bbeb-42d0-aef5-a815a49fac2f" />
-
-
-### Analysis
-The data confirms Strategy 1 is **Read-Optimized**.
-* **Why:** The read latency (~34ms) is consistently low because $R=1$ allows the node to answer immediately. The Write Latency is dominated by the "slowest follower" effect. Since we wait for all 5 nodes, the 200ms transmission delay + 100ms processing delay + overhead results in the observed ~340ms floor.
+## 2. Experimental Constraints & Methodology
+To isolate the impact of architectural choices, artificial delays were injected to simulate real-world processing and geographic latency:
+* **Leader Write Processing:** 200ms (simulating replication broadcast overhead).
+* **Follower Write Processing:** 100ms (simulating disk I/O or commit logic).
+* **Follower Read Processing:** 50ms (simulating local lookup latency).
+* **Leader Read Processing:** 0ms (simulating cached/optimized hot-path).
 
 ---
 
-## 3. Strategy 3: Quorum Consensus ($W=3, R=3$)
-**Configuration:** Balanced approach. Writes wait for 3 nodes; Reads query 3 nodes.
+## 3. Workload Analysis: 1% Write Ratio (Read Heavy)
 
-### Performance Data
-* **Write Latency (Mean):** **~337ms - 338ms**.
-* **Read Latency (Mean):** **~85ms - 94ms**.
-* **Tail Latency:** P99 Read latency spiked to **132ms** (in the 50% test), showing higher variance than Strategy 1.
+In this scenario, the system is almost exclusively serving reads. The `W3R3` configuration suffers significantly here due to the mandatory follower sleep delay on every read request.
 
-### Latency Graphs
-**10% Write / 90% Read:**
-Graph of W3R3 10% Write
-<img width="2970" height="1745" alt="interval_distribution_w3r3_10w" src="https://github.com/user-attachments/assets/560e6fac-10cd-4f29-a4f8-3d2f66519d2c" />
+### Leader-Follower (W=5, R=1)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img width="4163" height="1765" alt="latency_distribution_w5r1_1w" src="https://github.com/user-attachments/assets/82af2d52-d513-4847-b4ae-95c744da396c" />
+<br>
+  <em>File: latency_distribution_w5r1_1w.png</em>
+</div>
 
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+<img width="2970" height="1745" alt="interval_distribution_w5r1_1w" src="https://github.com/user-attachments/assets/9684a2f5-97eb-45c4-8d63-50c69de82b6d" />
+  <br>
+  <em>File: interval_distribution_w5r1_1w.png</em>
+</div>
 
-**50% Write / 50% Read:**
-Graph of W3R3 50% Write
-<img width="2970" height="1745" alt="interval_distribution_w3r3_50w" src="https://github.com/user-attachments/assets/314165ce-fa10-49ca-83c6-31a7abcbd9d7" />
+### Leader-Follower (W=3, R=3)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+ <img width="4170" height="1765" alt="latency_distribution_w3r3_1w" src="https://github.com/user-attachments/assets/d0e8560a-f4b5-4db2-9fa8-f5c191fc5b56" />
+</br>
+  <em>File: latency_distribution_w3r3_1w.png</em>
+</div>
 
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+ <img width="2970" height="1745" alt="interval_distribution_w3r3_1w" src="https://github.com/user-attachments/assets/ce70fa7e-4698-4dc5-b5d2-96c792d27ce1" />
+  <br>
+  <em>File: interval_distribution_w3r3_1w.png</em>
+</div>
 
-**90% Write / 10% Read:**
-Graph of W3R3 90% Write
-<img width="2970" height="1745" alt="interval_distribution_w3r3_90w" src="https://github.com/user-attachments/assets/44da7611-02e0-4545-81cd-fdc419cfd90d" />
-
-
-### Analysis
-* **The "Quorum Anomaly":** Interestingly, our data shows that $W=3$ writes (~338ms) are **statistically identical** to $W=5$ writes (~339ms). Theoretically, waiting for 3 nodes should be faster than 5. The fact that they are identical suggests that the Leader's broadcasting mechanism (sending the 200ms-delayed messages) is likely serial or CPU-bound, masking the benefit of waiting for fewer acknowledgments.
-* **The Read Penalty:** Reading is roughly **3x slower** than Strategy 1 (94ms vs 34ms). This represents the network round-trip cost of contacting 2 extra peers.
-
----
-
-## 4. Strategy 2: High Availability ($W=1, R=5$)
-**Configuration:** Writes return immediately (Async replication). Reads query ALL nodes to find the newest version.
-
-### Performance Data
-* **Write Latency (Mean):** **41.46ms** (Fastest of all Leader strategies).
-* **Read Latency (Mean):** **98.36ms** (Slowest).
-* **P99 Write:** 72.59ms.
-
-### Latency Graph
-**90% Write / 10% Read:**
-Graph of W1R5 90% Write
-<img width="4170" height="1765" alt="latency_distribution_90w" src="https://github.com/user-attachments/assets/97daaaac-ecd1-4f1e-bdfa-624ef799f0a2" />
-
-
-### Analysis
-This configuration successfully "cheated" the CAP theorem for writes.
-* **Why:** By setting $W=1$, the Leader ignores the 200ms artificial delay during the client request. It commits locally and returns success in **41ms**.
-* **The Trade-off:** The cost is shifted to the reader. The mean read latency of **98ms** is the highest of all groups because the reader must wait for the *slowest* of the 5 nodes to respond before it can determine which version is the latest.
+> **Observation:** Note the "long tail" in the W3R3 Interval distribution compared to W5R1. The architecture itself acts as a rate limiter.
 
 ---
 
-## 5. Leaderless Architecture ($W=N, R=1$)
-**Configuration:** Decentralized. Any node acts as coordinator.
+## 4. Workload Analysis: 10% Write Ratio
 
-### Request Statistics
-Table of Leaderless Statistics
-<img width="835" height="840" alt="图像" src="https://github.com/user-attachments/assets/42265a84-076c-4f93-90e1-93931b93c329" />
+As writes increase slightly, the read latency advantage of W5R1 continues to dominate the aggregate metrics, keeping intervals short.
 
+### Leader-Follower (W=5, R=1)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+ <img width="4170" height="1765" alt="latency_distribution_w5r1_10w" src="https://github.com/user-attachments/assets/9a358187-e284-48e5-8bc5-18223d87880c" />
 
-### Analysis
-* **Speed vs. Stability:** The Leaderless reads are blazing fast (**0.76ms**), likely because the local read path bypasses the Leader logic entirely.
-* **The Failure Rate:** The table shows **73 aggregated failures**. This proves that the Leaderless coordination overhead ($W=N$) under load causes timeouts or dropped messages, making it less reliable than the Leader-Follower strategies despite its raw read speed.
+  <br>
+  <em>File: latency_distribution_w5r1_10w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+<img width="2970" height="1745" alt="interval_distribution_w5r1_10w" src="https://github.com/user-attachments/assets/bcd6848c-695b-4859-87a2-e3184a2084c8" />
+
+  <br>
+  <em>File: interval_distribution_w5r1_10w.png</em>
+</div>
+
+### Leader-Follower (W=3, R=3)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img width="4170" height="1765" alt="latency_distribution_w3r3_10w" src="https://github.com/user-attachments/assets/8273256a-3351-4c1e-8268-fe3a8c8574ce" />
+
+  <br>
+  <em>File: latency_distribution_w3r3_10w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+<img width="2970" height="1745" alt="interval_distribution_w3r3_10w" src="https://github.com/user-attachments/assets/c2e2f180-aae4-4cf6-a173-6c52bca6f5b1" />
+
+  <br>
+  <em>File: interval_distribution_w3r3_10w.png</em>
+</div>
 
 ---
 
-## 6. Comparative Data Summary
-The following table aggregates the mean latency results collected from all test runs.
+## 5. Workload Analysis: 50% Write Ratio (Balanced)
 
-| Strategy | Workload (Write/Read) | Avg Write Latency | Avg Read Latency | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **Strong ($W=5$)** | 1% / 99% | **339.03 ms** | **34.85 ms** | Best for Read-Heavy |
-| | 10% / 90% | 338.08 ms | 32.62 ms | |
-| | 50% / 50% | 339.56 ms | 34.83 ms | |
-| | 90% / 10% | 337.52 ms | 33.47 ms | Slowest Writes |
-| **Quorum ($W=3$)** | 1% / 99% | **338.80 ms** | **87.02 ms** | |
-| | 10% / 90% | 338.62 ms | 85.35 ms | |
-| | 50% / 50% | 337.56 ms | 86.13 ms | Balanced / Safe |
-| | 90% / 10% | 337.46 ms | 94.85 ms | |
-| **High Avail ($W=1$)** | 90% / 10% | **41.46 ms** | **98.36 ms** | **Fastest Writes** / Slowest Reads |
-| **Leaderless** | Aggregated | 309.00 ms | **0.76 ms** | **Fastest Reads** (but Unstable) |
+Here we observe the equalization of write latencies between the Leader-Follower configurations. We also see the Leaderless architecture's interval distribution for the first time.
+
+### Leader-Follower (W=5, R=1)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img src="latency_distribution_w5r1_50w.png" alt="Latency W5R1 50%" width="600"/><br>
+  <em>File: latency_distribution_w5r1_50w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_w5r1_50w.png" alt="Interval W5R1 50%" width="600"/><br>
+  <em>File: interval_distribution_w5r1_50w.png</em>
+</div>
+
+### Leader-Follower (W=3, R=3)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img src="latency_distribution_w3r3_50w.png" alt="Latency W3R3 50%" width="600"/><br>
+  <em>File: latency_distribution_w3r3_50w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_w3r3_50w.png" alt="Interval W3R3 50%" width="600"/><br>
+  <em>File: interval_distribution_w3r3_50w.png</em>
+</div>
+
+### Leaderless Architecture
+*Note: Only Interval distribution data was captured for this workload.*
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_50w.png" alt="Interval Leaderless 50%" width="600"/><br>
+  <em>File: interval_distribution_50w.png</em>
+</div>
 
 ---
 
-## 7. Final Recommendations
+## 6. Workload Analysis: 90% Write Ratio (Write Intensive)
 
-Based on the empirical data collected above:
+This tier provides the most comprehensive comparison, containing complete latency and interval data for all three architectures.
 
-### 1. Best for Read-Heavy Apps (e.g., DNS, CDNs)
-**Recommendation:** **Strategy 1 ($W=5, R=1$)**
-* **Data Support:** It offers **34ms** reads vs 98ms for Strategy 2. The write penalty (339ms) is acceptable when writes are only 1% of traffic.
+### Leader-Follower (W=5, R=1)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img src="latency_distribution_w5r1_90w.png" alt="Latency W5R1 90%" width="600"/><br>
+  <em>File: latency_distribution_w5r1_90w.png</em>
+</div>
 
-### 2. Best for Write-Heavy Apps (e.g., IoT Sensors, Clickstreams)
-**Recommendation:** **Strategy 2 ($W=1, R=5$)**
-* **Data Support:** This is the **only** strategy that keeps write latency under 300ms. It achieved **41ms** writes, which is an **8x improvement** over Strategies 1 and 3.
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_w5r1_90w.png" alt="Interval W5R1 90%" width="600"/><br>
+  <em>File: interval_distribution_w5r1_90w.png</em>
+</div>
 
-### 3. Best for Mixed/Consistency-Critical Apps (e.g., Banking)
-**Recommendation:** **Strategy 3 ($W=3, R=3$)**
-* **Data Support:** While Strategy 3 didn't offer a write speedup in our specific tests (due to implementation overhead), it provides the mathematical guarantee of a Quorum. It avoids the potential data loss of Strategy 2 ($W=1$) and prevents the "Single Point of Read Failure" of Strategy 1, keeping both latencies in a predictable range (338ms Write / 90ms Read).
+### Leader-Follower (W=3, R=3)
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img src="latency_distribution_w3r3_90w.png" alt="Latency W3R3 90%" width="600"/><br>
+  <em>File: latency_distribution_w3r3_90w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_w3r3_90w.png" alt="Interval W3R3 90%" width="600"/><br>
+  <em>File: interval_distribution_w3r3_90w.png</em>
+</div>
+
+### Leaderless Architecture
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Latency Distribution]</strong><br>
+  <img src="latency_distribution_90w.png" alt="Latency Leaderless 90%" width="600"/><br>
+  <em>File: latency_distribution_90w.png</em>
+</div>
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[GRAPH: Interval Distribution]</strong><br>
+  <img src="interval_distribution_90w.png" alt="Interval Leaderless 90%" width="600"/><br>
+  <em>File: interval_distribution_90w.png</em>
+</div>
+
+---
+
+## 7. Deep Dive: Leaderless Architecture Statistics
+
+The Leaderless configuration exhibits the most extreme variance in performance characteristics. Below are the aggregated statistics capturing the request/response behavior.
+
+<div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
+  <strong>[TABLE: Request Statistics]</strong><br>
+  <img src="图像.png" alt="Leaderless Statistics Table" width="600"/><br>
+  <em>File: 图像.png</em>
+</div>
+
+| Metric | Value | Implication |
+| :--- | :--- | :--- |
+| **Read Latency (Mean)** | **0.76ms** | Near-instant access; bypasses network/sleeps. |
+| **Write Latency (Mean)** | **309ms** | Coordination cost is high; practically identical to Leader-based systems. |
+| **Staleness Risk** | High | $R=1$ in a leaderless system creates a massive inconsistency window. |
+
+> **Architectural Observation:** The Leaderless setup effectively trades **Consistency** for **Read Availability**. It is the only architecture that could serve a read request if the network partitioned the client from the majority of nodes.
+
+---
+
+## 8. Strategic Recommendations & Conclusion
+
+Based on the full suite of latency distributions, we classify the architectures by their optimal production roles:
+
+### 8.1. The "Golden Path": Leader-Follower (W=5, R=1)
+* **Performance Profile:** High-speed reads ($\approx 34ms$), moderate writes.
+* **Why it wins:** This configuration effectively masks the cost of replication by handling writes in parallel while optimizing the "hot path" (reads) to hit the single fastest node (the Leader).
+* **Operational Risk:** The $W=5$ setting is technically "brittle." In a real cluster, requiring *all* nodes to acknowledge a write means a single node failure causes total write unavailability. 
+* **Recommendation:** In production, this would likely be deployed as **$W=3, R=1$** (Async replication) to maintain the read speed while removing the fragility of synchronous replication to all nodes.
+
+### 8.2. The "High Availability" Safety Net: Leader-Follower (W=3, R=3)
+* **Performance Profile:** Slow reads ($\approx 90ms$), moderate writes.
+* **Why use it:** This is the standard "Quorum" configuration used by systems like Cassandra or DynamoDB when data integrity is paramount. It guarantees that even if the Leader dies and a partition occurs, you can still read/write as long as a majority exists.
+* **Trade-off:** You pay a **200-300% latency tax** on every read operation to buy this insurance.
+* **Recommendation:** Use only for mission-critical data (e.g., billing, identity management) where `Consistency > Latency`.
+
+### 8.3. The "Speed Demon": Leaderless Architecture
+* **Performance Profile:** Instant reads ($<1ms$), slow writes.
+* **Why use it:** It bypasses the network entirely for reads, serving directly from local memory.
+* **Trade-off:** It abandons Strong Consistency. A user reading from Node A might see data seconds older than a user reading from Node B.
+* **Recommendation:** Ideal for "Write-Once, Read-Many" workloads where freshness is negotiable but speed is not. Examples include **social media feeds, product recommendation engines, and IoT sensor logging**.
