@@ -196,7 +196,10 @@ The Leaderless configuration exhibits the most extreme variance in performance c
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[TABLE: Request Statistics]</strong><br>
-  <img src="图像.png" alt="Leaderless Statistics Table" width="600"/><br>
+<img width="835" height="840" alt="图像" src="https://github.com/user-attachments/assets/ec9c5862-1fbd-4384-8045-a001fb651f3c" />
+
+  
+  <br>
   <em>File: 图像.png</em>
 </div>
 
