@@ -164,39 +164,55 @@ This tier provides the most comprehensive comparison, containing complete latenc
 ### Leader-Follower (W=5, R=1)
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Latency Distribution]</strong><br>
-  <img src="latency_distribution_w5r1_90w.png" alt="Latency W5R1 90%" width="600"/><br>
+
+  <img width="4170" height="1765" alt="latency_distribution_w5r1_90w" src="https://github.com/user-attachments/assets/069b995b-085d-4a9d-9198-d0093b0396ca" />
+
+  <br>
   <em>File: latency_distribution_w5r1_90w.png</em>
 </div>
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_w5r1_90w.png" alt="Interval W5R1 90%" width="600"/><br>
+<img width="2965" height="1745" alt="interval_distribution_w5r1_90w" src="https://github.com/user-attachments/assets/5ae7627c-6728-4b20-b475-df02f7f622ba" />
+
+  
+  <br>
   <em>File: interval_distribution_w5r1_90w.png</em>
 </div>
 
 ### Leader-Follower (W=3, R=3)
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Latency Distribution]</strong><br>
-  <img src="latency_distribution_w3r3_90w.png" alt="Latency W3R3 90%" width="600"/><br>
+<img width="4163" height="1765" alt="latency_distribution_w3r3_90w" src="https://github.com/user-attachments/assets/e7c7c07e-f4fa-4bed-a1a3-a6661c0a90d1" />
+
+  
+  <br>
   <em>File: latency_distribution_w3r3_90w.png</em>
 </div>
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_w3r3_90w.png" alt="Interval W3R3 90%" width="600"/><br>
+<img width="2970" height="1745" alt="interval_distribution_w3r3_90w" src="https://github.com/user-attachments/assets/a22674ea-17f7-4337-8301-3a6df06df841" />
+
+  
+  <br>
   <em>File: interval_distribution_w3r3_90w.png</em>
 </div>
 
 ### Leaderless Architecture
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Latency Distribution]</strong><br>
-  <img src="latency_distribution_90w.png" alt="Latency Leaderless 90%" width="600"/><br>
+<img width="4170" height="1765" alt="latency_distribution_90w" src="https://github.com/user-attachments/assets/43304c4b-12a5-4807-93ad-ec12f3f6e096" />
+
+  <br>
   <em>File: latency_distribution_90w.png</em>
 </div>
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_90w.png" alt="Interval Leaderless 90%" width="600"/><br>
+<img width="2970" height="1745" alt="interval_distribution_90w" src="https://github.com/user-attachments/assets/efff8835-3868-4ec0-bc65-f74d73c6032c" />
+
+  <br>
   <em>File: interval_distribution_90w.png</em>
 </div>
 
