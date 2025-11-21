@@ -112,26 +112,35 @@ Here we observe the equalization of write latencies between the Leader-Follower 
 ### Leader-Follower (W=5, R=1)
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Latency Distribution]</strong><br>
-  <img src="latency_distribution_w5r1_50w.png" alt="Latency W5R1 50%" width="600"/><br>
+
+  <img width="4170" height="1765" alt="latency_distribution_w5r1_50w" src="https://github.com/user-attachments/assets/64e72585-f9d9-4e3f-b0af-51646026e631" />
+
+  <br>
   <em>File: latency_distribution_w5r1_50w.png</em>
 </div>
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_w5r1_50w.png" alt="Interval W5R1 50%" width="600"/><br>
+  <img width="2970" height="1745" alt="interval_distribution_w5r1_50w" src="https://github.com/user-attachments/assets/e32a3475-3a51-47a4-8b29-5a8fb75077bb" />
+
+  <br>
   <em>File: interval_distribution_w5r1_50w.png</em>
 </div>
 
 ### Leader-Follower (W=3, R=3)
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Latency Distribution]</strong><br>
-  <img src="latency_distribution_w3r3_50w.png" alt="Latency W3R3 50%" width="600"/><br>
+<img width="4170" height="1765" alt="latency_distribution_w3r3_50w" src="https://github.com/user-attachments/assets/f43c0bad-20e3-45f7-a703-08fcaa2e44e7" />
+
+  <br>
   <em>File: latency_distribution_w3r3_50w.png</em>
 </div>
 
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_w3r3_50w.png" alt="Interval W3R3 50%" width="600"/><br>
+<img width="2970" height="1745" alt="interval_distribution_w3r3_50w" src="https://github.com/user-attachments/assets/72103b9a-6223-462f-b1b4-18c0d1c5d8ed" />
+
+  <br>
   <em>File: interval_distribution_w3r3_50w.png</em>
 </div>
 
@@ -139,7 +148,10 @@ Here we observe the equalization of write latencies between the Leader-Follower 
 *Note: Only Interval distribution data was captured for this workload.*
 <div style="border: 2px solid #cccccc; padding: 10px; margin-bottom: 10px; text-align: center; background-color: #f9f9f9;">
   <strong>[GRAPH: Interval Distribution]</strong><br>
-  <img src="interval_distribution_50w.png" alt="Interval Leaderless 50%" width="600"/><br>
+
+  <img width="2970" height="1745" alt="interval_distribution_50w" src="https://github.com/user-attachments/assets/467fc2bc-e352-4a60-a60f-69af42ac7e15" />
+
+  <br>
   <em>File: interval_distribution_50w.png</em>
 </div>
 
